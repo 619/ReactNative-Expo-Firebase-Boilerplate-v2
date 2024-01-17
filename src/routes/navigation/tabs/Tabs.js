@@ -33,27 +33,13 @@ const TabNavigator = () => {
       swipeEnabled={false}
     >
       <Tab.Screen
-        name="HomeTab"
-        component={HomeNavigator}
+        name="ConnectTab"
+        component={ConnectNavigator}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
             <FontIcon
               name="home"
-              color={color}
-              size={size}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="ConnectTab"
-        component={ConnectNavigator}
-        options={{
-          tabBarLabel: 'Connect',
-          tabBarIcon: ({ color, size }) => (
-            <FontIcon
-              name="share-alt"
               color={color}
               size={size}
             />

@@ -100,20 +100,7 @@ export default function Profile() {
           onPress={goDetail}
         />
         <Button
-          label='Open Modal'
-          color={colors.tertiary}
-          onPress={() => {
-            navigation.navigate('ModalStacks', {
-              screen: 'Post',
-              params: {
-                data: userData,
-                from: 'Profile screen'
-              }
-            })
-          }}
-        />
-        <Button
-          label='Account delete'
+          label='Delete Account'
           color={colors.secondary}
           onPress={showDialog}
         />

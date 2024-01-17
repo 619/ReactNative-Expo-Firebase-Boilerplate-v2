@@ -16,12 +16,12 @@ export const FollowFollowerNavigator = () => {
       <Tab.Screen
         name="FollowTab"
         component={FollowNavigator}
-        options={{ tabBarLabel: 'Follow' }}
+        options={{ tabBarLabel: 'Invites' }}
       />
       <Tab.Screen
         name="FollowerTab"
         component={FollowerNavigator}
-        options={{ tabBarLabel: 'Follower' }}
+        options={{ tabBarLabel: 'Online' }}
       />
     </Tab.Navigator>
   )

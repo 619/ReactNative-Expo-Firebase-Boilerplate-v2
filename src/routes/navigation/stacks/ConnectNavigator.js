@@ -22,7 +22,7 @@ export const ConnectNavigator = () => {
     <Stack.Navigator screenOptions={navigationProps}>
       <RootStack.Group>
         <Stack.Screen
-          name="Connect"
+          name="Home"
           component={FollowFollowerNavigator}
           options={({ navigation }) => ({
             headerBackground: scheme === 'dark' ? null: () => <HeaderStyle />,
