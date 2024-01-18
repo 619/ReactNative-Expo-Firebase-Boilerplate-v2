@@ -122,7 +122,7 @@ export default function Post() {
         "player2Name": toName,
         "status": 1,
         "board": [null, null, null, null, null, null, null, null, null],
-        "currentplayer": "player1",
+        "currentPlayer": "player1",
         "winner": null,
         "gameOver": false
       });

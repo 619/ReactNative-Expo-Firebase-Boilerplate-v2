@@ -17,14 +17,14 @@ export default function TicTacToe() {
 //   const { gameId } = route.params;
   const { userData, setUserData } = useContext(UserDataContext)
 
-//   console.log('route.params: ', route.params.id)
+    console.log('currentPlayer: ', currentPlayer)
 
   const navigation = useNavigation();
-  const gameRef = doc(firestore, 'games', '1221');
+  const gameRef = doc(firestore, 'games', route.params.params.id);
 
   useEffect(() => {
     // Listen for real-time updates from Firestore
-    const gameRef = doc(firestore, 'games', route.params.params.id);
+    // const gameRef = doc(firestore, 'games', route.params.params.id);
     // console.log('26: ', route.params.params.id)
     const unsubscribe = onSnapshot(gameRef, (doc) => {
       if (doc.exists()) {
@@ -40,6 +40,7 @@ export default function TicTacToe() {
   }, [gameRef]);
 
   const handlePress = async (index) => {
+    console.log('43 handlepress')
     if (board[index] || gameOver) return;
 
     const newBoard = [...board];
