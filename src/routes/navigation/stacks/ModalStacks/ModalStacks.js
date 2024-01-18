@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { HomeTitleContext } from "../../../../context/HomeTitleContext";
 
 import Post from "../../../../scenes/post";
+import Tictactoe from "../../../../scenes/tictactoe";
 import Print from "../../../../scenes/print";
 
 const Stack = createStackNavigator()
@@ -35,6 +36,10 @@ export const ModalStacks = () => {
             <Stack.Screen
               name='Print'
               component={Print}
+            />
+            <Stack.Screen
+              name='Tictactoe'
+              component={Tictactoe}
             />
           </Stack.Navigator>
       )}

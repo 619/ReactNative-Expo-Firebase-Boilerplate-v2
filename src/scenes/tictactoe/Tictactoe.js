@@ -32,7 +32,7 @@ export default function Tictactoe() {
   }, [])
 
   useFocusEffect(() => {
-    setTitle(data.fullName)
+    // setTitle(data.fullName)
   });
 
   const loadStorage = async() => {
@@ -122,7 +122,7 @@ export default function Tictactoe() {
         "status": 1
       });
       
-      navigation.navigate('TicTacToe', {
+      navigation.navigate('ModalStacks', {
         screen: 'Post',
         params: {
          

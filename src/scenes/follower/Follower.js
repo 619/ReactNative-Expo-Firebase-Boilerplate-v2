@@ -44,6 +44,7 @@ export default function Follower() {
       } else {
         // setLoggedIn(false);
         // setChecked(true);
+        console.log('test')
       }
     });
   }, [])

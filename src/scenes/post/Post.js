@@ -129,6 +129,8 @@ export default function Post() {
         }
       })
 
+      // navigation.navigate('Login')
+ 
       // console.log("124 Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
