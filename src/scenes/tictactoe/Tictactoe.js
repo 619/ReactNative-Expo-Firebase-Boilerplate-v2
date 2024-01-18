@@ -1,195 +1,130 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { Text, View, StyleSheet } from 'react-native'
-import ScreenTemplate from '../../components/ScreenTemplate'
-import Button from '../../components/Button'
-import { useRoute, useFocusEffect, useNavigation } from '@react-navigation/native'
-import { colors, fontSize } from 'theme'
-import { ColorSchemeContext } from '../../context/ColorSchemeContext'
-import { HomeTitleContext } from '../../context/HomeTitleContext'
-import { storage } from '../../utils/Storage'
-import moment from 'moment'
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../firebase/config';
-import { collection, addDoc, updateDoc, doc, getDoc } from 'firebase/firestore';
+import React, { useState, useEffect, useContext } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import ScreenTemplate from '../../components/ScreenTemplate';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { firestore } from '../../firebase/config';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 
-export default function Tictactoe() {
-  const route = useRoute()
-  const { data, from, type, to, toName, fromName } = route.params
-  const { scheme } = useContext(ColorSchemeContext)
-  const [date, setDate] = useState('')
-  const { setTitle } = useContext(HomeTitleContext)
-  const navigation = useNavigation()
-  const isDark = scheme === 'dark'
-  const colorScheme = {
-    content: isDark? styles.darkContent:styles.lightContent,
-    text: isDark? colors.white : colors.primaryText
-  }
+const initialBoard = Array(9).fill(null);
+
+export default function TicTacToe() {
+  const [board, setBoard] = useState(initialBoard);
+  const [currentPlayer, setCurrentPlayer] = useState('player1');
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const route = useRoute();
+  const gameId = route.params.id;
+  
+
+  const gameRef = doc(firestore, 'games', "N7BAp8G54e9nyQ4okJY9");
+
+  const navigation = useNavigation();
 
   useEffect(() => {
-    console.log('Tictactoe screen')
-    loadStorage()
-  }, [])
-
-  useFocusEffect(() => {
-    // setTitle(data.fullName)
-  });
-
-  const loadStorage = async() => {
-    try {
-      const result = await storage.load({key: 'date'})
-      setDate(result)
-    } catch (e) {
-      const result = {date: 'no data'}
-      setDate(result)
-    }
-  }
-
-  const saveStorage = () => {
-    const today = moment().toString()
-    storage.save({
-      key: 'date',
-      data: {
-        'date': today
+    // Listen for real-time updates from Firestore
+    // const gameRef = doc(firestore, 'games', route.params.id);
+    console.log('26: ', route.params.id)
+    const unsubscribe = onSnapshot(gameRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setBoard(data.board);
+        setCurrentPlayer(data.currentPlayer);
+        setGameOver(data.gameOver);
+        setWinner(data.winner);
       }
-    })
-  }
+    });
 
-  const removeStorage = () => {
-    storage.remove({ key: 'date' })
-  }
+    return () => unsubscribe();
+  }, [gameRef]);
 
-  const onSavePress = () => {
-    saveStorage()
-    loadStorage()
-  }
+  const handlePress = async (index) => {
+    if (board[index] || gameOver) return;
 
-  const onRemovePress = () => {
-    removeStorage()
-    loadStorage()
-  }
+    const newBoard = [...board];
+    newBoard[index] = currentPlayer === 'player1' ? 'X' : 'O';
 
-  const onChallengePress = async () => {
-    try {
-      // Reference to the invites collection
-      const invitesRef = collection(firestore, 'users', to, 'invites');
+    // Check for win or draw
+    const winner = checkWinner(newBoard);
+    const isGameOver = winner || newBoard.every(cell => cell);
+
+    await updateDoc(gameRef, {
+      board: newBoard,
+      currentPlayer: currentPlayer === 'player1' ? 'player2' : 'player1',
+      gameOver: isGameOver,
+      winner: winner
+    });
+  };
+
+  const checkWinner = (board) => {
+    // Winning combinations using the board index
+    const lines = [
+      [0, 1, 2], // first row
+      [3, 4, 5], // second row
+      [6, 7, 8], // third row
+      [0, 3, 6], // first column
+      [1, 4, 7], // second column
+      [2, 5, 8], // third column
+      [0, 4, 8], // first diagonal
+      [2, 4, 6], // second diagonal
+    ];
   
-      // Add a new document with the provided data
-      const docRef = await addDoc(invitesRef, {
-        from,
-        to,
-        fromName,
-        toName
-      });
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a] === 'X' ? 'player1' : 'player2';
+      }
+    }
   
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  }
+    return null;
+  };
 
-  const onAcceptPress = async () => {
-    console.log('92: ', route.params)
-    try {
-      // Reference to the invites collection      
-      // const fromRef = doc(firestore, 'online', from)
-      // const fromDoc = await getDoc(fromRef)
-      // if (!fromDoc.exists) {
-      //   console.log("97: fromDoc doesn't exist")
-      //   return;
-      // } else if (!fromDoc.online) {
-      //   console.log("100: from is not online")
-      //   return;
-      // }
-
-      // const toRef = doc(firestore, 'online', to)
-      // const toDoc = await getDoc(toRef)
-      // if (!toDoc.exists) {
-      //   console.log("107: toDoc doesn't exist")
-      //   return;
-      // } else if (!toDoc.online) {
-      //   console.log("110: to is not online")
-      //   return;
-      // }
-      
-      // Add a new document with the provided data
-      const gameRef = collection(firestore, 'games');
-      const docRef = await addDoc(gameRef, {
-        "player1": from,
-        "player2": to,
-        "player1Name": fromName,
-        "player2Name": toName,
-        "status": 1
-      });
-      
-      navigation.navigate('ModalStacks', {
-        screen: 'Post',
-        params: {
-         
-        }
-      })
-
-      console.log("124 Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  }
-
-console.log('67: ', route.params)
+  const renderCell = (index) => {
+    return (
+      <TouchableOpacity
+        style={styles.cell}
+        onPress={() => handlePress(index)}
+        disabled={currentPlayer !== 'player1' && currentPlayer !== 'player2'}
+      >
+        <Text style={styles.cellText}>{board[index]}</Text>
+      </TouchableOpacity>
+    );
+  };
+  console.log('92: ', board)
   return (
     <ScreenTemplate>
-      {
-        type == "online" ? (
-          <View style={[styles.container, colorScheme.content ]}>
-            <Text style={[styles.field, {color: colorScheme.text}]}>Challenge this person</Text>
-            <Text style={[styles.title, {color: colorScheme.text}]}>{(toName != undefined ? toName : "unknown")}</Text>
-            <View style={{width:'100%'}}>
-              <Button
-                label='Challenge'
-                color={colors.primary}
-                onPress={() => onChallengePress()}
-              />
-            </View>
-          </View>
-        ) : (
-          <View style={[styles.container, colorScheme.content ]}>
-            <Text style={[styles.field, {color: colorScheme.text}]}>Challenge Request!</Text>
-            <Text style={[styles.field, {color: colorScheme.text}]}>from</Text>
-            <Text style={[styles.title, {color: colorScheme.text}]}>{fromName}</Text>
-            <View style={{width:'100%'}}>
-              <Button
-                label='Accept'
-                color={colors.primary}
-                onPress={() => onAcceptPress()}
-              />
-            </View>
-          </View>
-        )
-      }
-      
+      <View style={styles.board}>
+      {Array.isArray(board) ? board.map((_, index) => renderCell(index)) : null}
+      </View>
+      {gameOver && (
+        <Text style={styles.gameOverText}>
+          {winner ? `Winner: ${winner}` : 'Draw'}
+        </Text>
+      )}
     </ScreenTemplate>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  lightContent: {
-    backgroundColor: '#e6e6fa'
+  board: {
+    width: '100%',
+    aspectRatio: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
-  darkContent: {
-    backgroundColor: '#696969'
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
+  cell: {
+    width: '33.33%',
+    height: '33.33%',
     justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
   },
-  title: {
-    fontSize: fontSize.xxxLarge,
-    marginBottom: 20,
-    textAlign: 'center'
+  cellText: {
+    fontSize: 40,
   },
-  field: {
-    fontSize: fontSize.middle,
+  gameOverText: {
+    fontSize: 24,
     textAlign: 'center',
+    marginTop: 20,
   },
-})
+});

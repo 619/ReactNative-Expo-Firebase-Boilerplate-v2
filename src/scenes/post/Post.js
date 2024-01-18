@@ -92,40 +92,44 @@ export default function Post() {
     console.log('92: ', route.params)
     try {
       // Reference to the invites collection      
-      // const fromRef = doc(firestore, 'online', from)
-      // const fromDoc = await getDoc(fromRef)
-      // if (!fromDoc.exists) {
-      //   console.log("97: fromDoc doesn't exist")
-      //   return;
-      // } else if (!fromDoc.online) {
-      //   console.log("100: from is not online")
-      //   return;
-      // }
+      const fromRef = doc(firestore, 'online', from)
+      const fromDoc = await getDoc(fromRef)
+      if (!fromDoc.exists) {
+        console.log("97: fromDoc doesn't exist")
+        return;
+      } else if (!fromDoc.online) {
+        console.log("100: from is not online")
+        return;
+      }
 
-      // const toRef = doc(firestore, 'online', to)
-      // const toDoc = await getDoc(toRef)
-      // if (!toDoc.exists) {
-      //   console.log("107: toDoc doesn't exist")
-      //   return;
-      // } else if (!toDoc.online) {
-      //   console.log("110: to is not online")
-      //   return;
-      // }
+      const toRef = doc(firestore, 'online', to)
+      const toDoc = await getDoc(toRef)
+      if (!toDoc.exists) {
+        console.log("107: toDoc doesn't exist")
+        return;
+      } else if (!toDoc.online) {
+        console.log("110: to is not online")
+        return;
+      }
       
       // Add a new document with the provided data
-      // const gameRef = collection(firestore, 'games');
-      // const docRef = await addDoc(gameRef, {
-      //   "player1": from,
-      //   "player2": to,
-      //   "player1Name": fromName,
-      //   "player2Name": toName,
-      //   "status": 1
-      // });
+      const gameRef = collection(firestore, 'games');
+      const docRef = await addDoc(gameRef, {
+        "player1": from,
+        "player2": to,
+        "player1Name": fromName,
+        "player2Name": toName,
+        "status": 1,
+        "board": [null, null, null, null, null, null, null, null, null],
+        "currentplayer": "player1",
+        "winner": null,
+        "gameOver": false
+      });
       
       navigation.navigate('Tictactoe', {
         screen: 'Tictactoe',
         params: {
-         
+         id: "N7BAp8G54e9nyQ4okJY9"
         }
       })
 
