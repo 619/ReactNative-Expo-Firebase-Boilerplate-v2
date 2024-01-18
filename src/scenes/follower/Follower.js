@@ -27,6 +27,11 @@ export default function Follower() {
   const userOnlineRef = doc(firestore, 'online', userData.id); // Reference to the user's online document
   console.log('28: ', userData.id, userData.email)
   useEffect(() => {
+    
+    const addStatus = async () => {
+      await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: true, inGame: false }, { merge: true });
+    }
+    addStatus()
     console.log('Follower screen')
     onAuthStateChanged(auth, (user) => {
       if (user) {

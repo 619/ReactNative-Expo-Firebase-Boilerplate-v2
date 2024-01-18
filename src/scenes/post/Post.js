@@ -131,8 +131,12 @@ export default function Post() {
         "winner": null,
         "gameOver": false
       });
-      
+      console.log('134: ', from, docRef.id)
       await updateDoc(toRef, {
+        "inGame": true,
+        "gameId": docRef.id
+      });
+      await updateDoc(fromRef, {
         "inGame": true,
         "gameId": docRef.id
       });

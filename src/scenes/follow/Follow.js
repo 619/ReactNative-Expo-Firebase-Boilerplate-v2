@@ -20,10 +20,17 @@ export default function Follow() {
   const colorScheme = {
     text: isDark? colors.white : colors.primaryText
   }
-
+  console.log('before 23')
   const userOnlineRef = doc(firestore, 'online', userData.id); // Reference to the user's online document
-
+  console.log('after 25')
   useEffect(() => {
+
+    const addStatus = async () => {
+      console.log('before 29')
+      await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: true, inGame: false }, { merge: true });
+      console.log('after 30')
+    }
+    addStatus()
     console.log('Follow screen')
     // onAuthStateChanged(auth, (user) => {
     //   if (user) {
