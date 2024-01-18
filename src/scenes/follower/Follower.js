@@ -9,7 +9,7 @@ import ShowSnackbar from '../../components/ShowSnackbar'
 import { useNavigation } from '@react-navigation/native'
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { firestore } from '../../firebase/config';
 import { UserDataContext } from "./../../context/UserDataContext";
 import { AppState } from 'react-native';
@@ -25,7 +25,7 @@ export default function Follower() {
   const [onlineData, setOnlineData] = useState([]);
   const { userData } = useContext(UserDataContext)
   const userOnlineRef = doc(firestore, 'online', userData.id); // Reference to the user's online document
-  console.log('28: ', userData.id)
+  console.log('28: ', userData.id, userData.email)
   useEffect(() => {
     console.log('Follower screen')
     onAuthStateChanged(auth, (user) => {
@@ -54,11 +54,11 @@ export default function Follower() {
       if (nextAppState === 'active') {
         // User is active in the app
         console.log('-------------user is active--------------')
-        await updateDoc(userOnlineRef, { online: true });
+        await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: true });
       } else if (nextAppState.match(/inactive|background/)) {
         // User is not active in the app
         console.log('-------------user is inactive--------------')
-        await updateDoc(userOnlineRef, { online: false });
+        await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: false });
       }
     };
 
@@ -80,7 +80,7 @@ export default function Follower() {
         {onlineData.map((online, index) => (
           <View key={index} style={styles.fullscreenButtonContainer}>
             <Button
-              label={(online.username != undefined ? online.username : "unknown")}
+              label={(online.email != undefined ? online.email : "unknown")}
               color={colors.tertiary}
               style={styles.scrollViewButton}
               onPress={() => {
@@ -90,8 +90,7 @@ export default function Follower() {
                     type: "online",
                     from: userData.id,
                     fromName: userData.email,
-                    to: online.to,
-                    id: online.id,
+                    to: online.id,
                     toName: online.email,
                     data: userData
                   }

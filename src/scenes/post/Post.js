@@ -15,7 +15,7 @@ import { firestore } from '../../firebase/config';
 
 export default function Post() {
   const route = useRoute()
-  const { data, from, type, to, toName, fromName } = route.params
+  const { data, from, type, toName, fromName, to } = route.params
   const { scheme } = useContext(ColorSchemeContext)
   const [date, setDate] = useState('')
   const { setTitle } = useContext(HomeTitleContext)
@@ -72,14 +72,17 @@ export default function Post() {
   const onChallengePress = async () => {
     try {
       // Reference to the invites collection
+      console.log('75: ', to)
       const invitesRef = collection(firestore, 'users', to, 'invites');
   
       // Add a new document with the provided data
+
+      console.log('79: ', from, to, fromName, toName)
       const docRef = await addDoc(invitesRef, {
-        from,
-        to,
-        fromName,
-        toName
+        "from": from,
+        "to": to,
+        "fromName": fromName,
+        "toName": toName
       });
   
       console.log("Document written with ID: ", docRef.id);
@@ -94,7 +97,7 @@ export default function Post() {
       // Reference to the invites collection      
       const fromRef = doc(firestore, 'online', from)
       const fromDoc = await getDoc(fromRef)
-      console.log('97: ', fromDoc.data.online)
+      console.log('97: ', fromDoc.data().online, to)
       if (!fromDoc.exists) {
         console.log("97: fromDoc doesn't exist")
         return;
