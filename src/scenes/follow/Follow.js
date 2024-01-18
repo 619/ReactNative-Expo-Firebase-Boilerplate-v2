@@ -8,7 +8,7 @@ import { UserDataContext } from '../../context/UserDataContext'
 import { useNavigation } from '@react-navigation/native'
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc } from 'firebase/firestore';
 import { firestore } from '../../firebase/config';
 
 export default function Follow() {
@@ -20,6 +20,8 @@ export default function Follow() {
   const colorScheme = {
     text: isDark? colors.white : colors.primaryText
   }
+
+  const userOnlineRef = doc(firestore, 'online', userData.id); // Reference to the user's online document
 
   useEffect(() => {
     console.log('Follow screen')
@@ -57,7 +59,35 @@ export default function Follow() {
         // setChecked(true);
       }
     });
+
+    const unsubscribe = onSnapshot(userOnlineRef, (doc) => {
+      if (doc.exists()) {
+        const docData = doc.data();
+        console.log("Current data: ", docData);
+        handleChange(docData); // Call your function with the updated data
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+
   }, [])
+
+  function handleChange(updatedData) {
+    // Handle the change here
+    console.log("80 gameId: ", updatedData.gameId);
+
+    if (updatedData.inGame == true && updatedData.gameId != undefined) {
+      navigation.navigate('Tictactoe', {
+        screen: 'Tictactoe',
+        params: {
+         id: (updatedData != undefined ? updatedData.gameId : "none")
+        }
+      })
+    }
+  }
 
   const buttonLabels = ['Button 1', 'Button 2', 'Button 3', 'Button 4']
   return (

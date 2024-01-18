@@ -29,6 +29,8 @@ export default function Post() {
   useEffect(() => {
     console.log('Post screen')
     loadStorage()
+
+
   }, [])
 
   useFocusEffect(() => {
@@ -125,9 +127,14 @@ export default function Post() {
         "player2Name": toName,
         "status": 1,
         "board": [null, null, null, null, null, null, null, null, null],
-        "currentPlayer": "player1",
+        "currentplayer": "player1",
         "winner": null,
         "gameOver": false
+      });
+      
+      await updateDoc(toRef, {
+        "inGame": true,
+        "gameId": docRef.id
       });
       
       navigation.navigate('Tictactoe', {

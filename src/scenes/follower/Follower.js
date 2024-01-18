@@ -54,11 +54,11 @@ export default function Follower() {
       if (nextAppState === 'active') {
         // User is active in the app
         console.log('-------------user is active--------------')
-        await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: true });
+        await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: true, inGame: false });
       } else if (nextAppState.match(/inactive|background/)) {
         // User is not active in the app
         console.log('-------------user is inactive--------------')
-        await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: false });
+        await setDoc(userOnlineRef, { email: userData.email, id: userData.id, online: false, inGame: false });
       }
     };
 
@@ -68,7 +68,35 @@ export default function Follower() {
     return () => {
       // AppState.removeEventListener('change', handleAppStateChange);
     };
+    
+    const unsubscribe = onSnapshot(userOnlineRef, (doc) => {
+      if (doc.exists()) {
+        const docData = doc.data();
+        console.log("Current data: ", docData);
+        handleChange(docData); // Call your function with the updated data
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+
   }, [])
+
+  function handleChange(updatedData) {
+    // Handle the change here
+    console.log("89 gameId: ", updatedData.gameId);
+
+    if (updatedData.inGame == true && updatedData.gameId != undefined) {
+      navigation.navigate('Tictactoe', {
+        screen: 'Tictactoe',
+        params: {
+         id: updatedData.gameId
+        }
+      })
+    }
+  }
 
   const onDismissSnackBar = () => setVisible(false)
 
