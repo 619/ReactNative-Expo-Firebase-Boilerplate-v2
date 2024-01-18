@@ -1,16 +1,21 @@
-import React, { useEffect, useContext } from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import React, { useEffect, useContext, useState } from 'react'
+import { Text, View, StyleSheet, ScrollView } from 'react-native'
 import ScreenTemplate from '../../components/ScreenTemplate'
 import Button from '../../components/Button'
 import { colors, fontSize } from 'theme'
 import { ColorSchemeContext } from '../../context/ColorSchemeContext'
 import { UserDataContext } from '../../context/UserDataContext'
 import { useNavigation } from '@react-navigation/native'
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../firebase/config';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { firestore } from '../../firebase/config';
 
 export default function Follow() {
   const navigation = useNavigation()
   const { userData } = useContext(UserDataContext)
   const { scheme } = useContext(ColorSchemeContext)
+  const [invitesData, setInvitesData] = useState([]);
   const isDark = scheme === 'dark'
   const colorScheme = {
     text: isDark? colors.white : colors.primaryText
@@ -18,26 +23,71 @@ export default function Follow() {
 
   useEffect(() => {
     console.log('Follow screen')
+    // onAuthStateChanged(auth, (user) => {
+    //   if (user) {
+    //     const usersRef = doc(firestore, 'users', user.uid)
+    //     onSnapshot(usersRef, (querySnapshot) => {
+    //       const userData = querySnapshot.data()
+    //       setUserData(userData)
+    //       setLoggedIn(true)
+    //       setChecked(true)
+    //     })
+    //   } else {
+    //     setLoggedIn(false)
+    //     setChecked(true)
+    //   }
+    // });
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Reference to the 'invites' subcollection inside the user's document
+        const invitesRef = collection(firestore, 'users', user.uid, 'invites');
+    
+        // Listen for changes in the 'invites' subcollection
+        onSnapshot(invitesRef, (querySnapshot) => {
+          const invitesData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setInvitesData(invitesData); // Assuming you have a state setter for invites data
+          // setLoggedIn(true);
+          // setChecked(true);
+        });
+      } else {
+        // setLoggedIn(false);
+        // setChecked(true);
+      }
+    });
   }, [])
 
+  const buttonLabels = ['Button 1', 'Button 2', 'Button 3', 'Button 4']
   return (
     <ScreenTemplate>
       <View style={[styles.container]}>
         <View style={{width:'100%'}}>
-          <Text style={[styles.field, {color: colorScheme.text}]}>Follow Screen</Text>
-          <Button
-            label='Open Modal'
-            color={colors.tertiary}
-            onPress={() => {
-              navigation.navigate('ModalStacks', {
-                screen: 'Post',
-                params: {
-                  data: userData,
-                  from: 'Follow screen'
-                }
-              })
-            }}
-          />
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        {invitesData.map((invite, index) => (
+          <View key={index} style={styles.fullscreenButtonContainer}>
+            <Button
+              label={(invite.fromName != undefined ? invite.fromName : "unknown")}
+              color={colors.tertiary}
+              style={styles.scrollViewButton}
+              onPress={() => {
+                navigation.navigate('ModalStacks', {
+                  screen: 'Post',
+                  params: {
+                    type: "invite",
+                    from: invite.from,
+                    fromName: invite.fromName,
+                    to: invite.to,
+                    toName: invite.toName,
+                    data: userData
+                  }
+                })
+              }}
+            />
+          </View>
+        ))}
+      </ScrollView>
         </View>
       </View>
     </ScreenTemplate>
@@ -55,4 +105,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.middle,
     textAlign: 'center',
   },
+  scrollViewContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: "100%"
+  },
+  fullscreenButtonContainer: {
+    width: 500,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  scrollViewButton: {
+    width: "100%",
+    alignSelf: 'center',
+  }
 })

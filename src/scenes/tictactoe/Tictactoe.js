@@ -13,7 +13,7 @@ import { auth } from '../../firebase/config';
 import { collection, addDoc, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../../firebase/config';
 
-export default function Post() {
+export default function Tictactoe() {
   const route = useRoute()
   const { data, from, type, to, toName, fromName } = route.params
   const { scheme } = useContext(ColorSchemeContext)
@@ -27,7 +27,7 @@ export default function Post() {
   }
 
   useEffect(() => {
-    console.log('Post screen')
+    console.log('Tictactoe screen')
     loadStorage()
   }, [])
 
@@ -113,23 +113,23 @@ export default function Post() {
       // }
       
       // Add a new document with the provided data
-      // const gameRef = collection(firestore, 'games');
-      // const docRef = await addDoc(gameRef, {
-      //   "player1": from,
-      //   "player2": to,
-      //   "player1Name": fromName,
-      //   "player2Name": toName,
-      //   "status": 1
-      // });
+      const gameRef = collection(firestore, 'games');
+      const docRef = await addDoc(gameRef, {
+        "player1": from,
+        "player2": to,
+        "player1Name": fromName,
+        "player2Name": toName,
+        "status": 1
+      });
       
-      navigation.navigate('Tictactoe', {
-        screen: 'Tictactoe',
+      navigation.navigate('TicTacToe', {
+        screen: 'Post',
         params: {
          
         }
       })
 
-      // console.log("124 Document written with ID: ", docRef.id);
+      console.log("124 Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }

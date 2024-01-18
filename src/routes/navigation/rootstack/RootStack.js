@@ -2,6 +2,8 @@ import React, { useState, useContext, useEffect } from "react";
 import { Platform } from "react-native";
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import TabNavigator from "../tabs/Tabs";
+import TictactoeNavigator from "./../stacks/TictactoeNavigator";
+import Tictactoe from "./../../../scenes/tictactoe";
 import { ModalStacks } from "../stacks/ModalStacks/ModalStacks";
 import * as Notifications from 'expo-notifications'
 import { firestore } from "../../../firebase/config";
@@ -65,6 +67,14 @@ export default function RootStack() {
       <Stack.Screen
         name='HomeRoot'
         component={TabNavigator}
+      />
+      <Stack.Screen
+        name='Tictactoe'
+        component={TictactoeNavigator}
+      />
+      <Stack.Screen
+        name='Tictactoe2'
+        component={Tictactoe}
       />
       <Stack.Group
         screenOptions={{
