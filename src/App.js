@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { View } from 'react-native'
 import { Provider } from 'jotai'
 import 'utils/ignore'
 import { ColorSchemeContextProvider } from './context/ColorSchemeContext'
 import { UserDataContextProvider } from './context/UserDataContext'
+import { collection, addDoc, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { firestore } from './firebase/config';
+import { AppState } from 'react-native';
 
 // assets
 import { imageAssets } from 'theme/images'
@@ -15,7 +18,6 @@ const isHermes = () => !!global.HermesInternal;
 const App = () => {
   // state
   const [didLoad, setDidLoad] = useState(false)
-  console.log('isHermes', isHermes())
 
   // handler
   const handleLoadAssets = async () => {

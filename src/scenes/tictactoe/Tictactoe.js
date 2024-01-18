@@ -4,6 +4,7 @@ import ScreenTemplate from '../../components/ScreenTemplate';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { firestore } from '../../firebase/config';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { UserDataContext } from '../../context/UserDataContext'
 
 const initialBoard = Array(9).fill(null);
 
@@ -13,17 +14,18 @@ export default function TicTacToe() {
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
   const route = useRoute();
-  const gameId = route.params.id;
-  
+//   const { gameId } = route.params;
+  const { userData, setUserData } = useContext(UserDataContext)
 
-  const gameRef = doc(firestore, 'games', "N7BAp8G54e9nyQ4okJY9");
+//   console.log('route.params: ', route.params.id)
 
   const navigation = useNavigation();
+  const gameRef = doc(firestore, 'games', '1221');
 
   useEffect(() => {
     // Listen for real-time updates from Firestore
-    // const gameRef = doc(firestore, 'games', route.params.id);
-    console.log('26: ', route.params.id)
+    const gameRef = doc(firestore, 'games', route.params.params.id);
+    // console.log('26: ', route.params.params.id)
     const unsubscribe = onSnapshot(gameRef, (doc) => {
       if (doc.exists()) {
         const data = doc.data();
@@ -46,7 +48,12 @@ export default function TicTacToe() {
     // Check for win or draw
     const winner = checkWinner(newBoard);
     const isGameOver = winner || newBoard.every(cell => cell);
-
+    console.log('51: ', {
+        board: newBoard,
+        currentPlayer: currentPlayer === 'player1' ? 'player2' : 'player1',
+        gameOver: isGameOver,
+        winner: winner
+      })
     await updateDoc(gameRef, {
       board: newBoard,
       currentPlayer: currentPlayer === 'player1' ? 'player2' : 'player1',
@@ -89,11 +96,11 @@ export default function TicTacToe() {
       </TouchableOpacity>
     );
   };
-  console.log('92: ', board)
+//   console.log('92: ', board)
   return (
     <ScreenTemplate>
       <View style={styles.board}>
-      {Array.isArray(board) ? board.map((_, index) => renderCell(index)) : null}
+      {Array.isArray(board) ? board.map((_, index) => React.cloneElement(renderCell(index), { key: index })) : null}
       </View>
       {gameOver && (
         <Text style={styles.gameOverText}>

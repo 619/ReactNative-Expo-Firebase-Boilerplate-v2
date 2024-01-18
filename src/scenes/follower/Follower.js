@@ -9,9 +9,10 @@ import ShowSnackbar from '../../components/ShowSnackbar'
 import { useNavigation } from '@react-navigation/native'
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../firebase/config';
 import { UserDataContext } from "./../../context/UserDataContext";
+import { AppState } from 'react-native';
 
 export default function Follower() {
   const navigation = useNavigation()
@@ -23,7 +24,8 @@ export default function Follower() {
   }
   const [onlineData, setOnlineData] = useState([]);
   const { userData } = useContext(UserDataContext)
-
+  const userOnlineRef = doc(firestore, 'online', userData.id); // Reference to the user's online document
+  console.log('28: ', userData.id)
   useEffect(() => {
     console.log('Follower screen')
     onAuthStateChanged(auth, (user) => {
@@ -47,6 +49,25 @@ export default function Follower() {
         console.log('test')
       }
     });
+
+    const handleAppStateChange = async (nextAppState) => {
+      if (nextAppState === 'active') {
+        // User is active in the app
+        console.log('-------------user is active--------------')
+        await updateDoc(userOnlineRef, { online: true });
+      } else if (nextAppState.match(/inactive|background/)) {
+        // User is not active in the app
+        console.log('-------------user is inactive--------------')
+        await updateDoc(userOnlineRef, { online: false });
+      }
+    };
+
+    AppState.addEventListener('change', handleAppStateChange);
+
+    // Return a cleanup function to remove the event listener
+    return () => {
+      // AppState.removeEventListener('change', handleAppStateChange);
+    };
   }, [])
 
   const onDismissSnackBar = () => setVisible(false)

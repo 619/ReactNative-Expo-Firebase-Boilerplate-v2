@@ -89,15 +89,16 @@ export default function Post() {
   }
 
   const onAcceptPress = async () => {
-    console.log('92: ', route.params)
+    console.log('92: ', from)
     try {
       // Reference to the invites collection      
       const fromRef = doc(firestore, 'online', from)
       const fromDoc = await getDoc(fromRef)
+      console.log('97: ', fromDoc.data.online)
       if (!fromDoc.exists) {
         console.log("97: fromDoc doesn't exist")
         return;
-      } else if (!fromDoc.online) {
+      } else if (!fromDoc.data().online) {
         console.log("100: from is not online")
         return;
       }
@@ -107,7 +108,7 @@ export default function Post() {
       if (!toDoc.exists) {
         console.log("107: toDoc doesn't exist")
         return;
-      } else if (!toDoc.online) {
+      } else if (!toDoc.data().online) {
         console.log("110: to is not online")
         return;
       }
@@ -129,7 +130,7 @@ export default function Post() {
       navigation.navigate('Tictactoe', {
         screen: 'Tictactoe',
         params: {
-         id: "N7BAp8G54e9nyQ4okJY9"
+         id: docRef.id
         }
       })
 
